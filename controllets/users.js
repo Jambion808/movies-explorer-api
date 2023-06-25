@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
+const { NODE_ENV, JWT_SECRET } = process.env;
 const User = require('../models/user');
 const NotfoundError = require('../errors/error-notFound');
 const UnAuthError = require('../errors/error-auth');
@@ -53,7 +55,7 @@ module.exports.login = (req, res, next) => {
           if (!matched) {
             throw new UnAuthError('Неверный логин или пароль');
           }
-          const token = jwt.sign({ _id: user._id }, 'f8308e4d93f6afd42c122bebbf1fc418e0fe73aa2c3ebf172c3d129dc629d9ef', {
+          const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', {
             expiresIn: '7d',
           });
           res.status(200).send({ token });
