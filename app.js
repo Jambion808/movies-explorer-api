@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const hamlet = require('hamlet');
 const { errors } = require('celebrate');
 const routes = require('./routes/index');
 const { createUser, login } = require('./controllets/users');
@@ -17,7 +16,6 @@ const { PORT = 3000 } = process.env;
 const app = express();
 app.use(express.json());
 mongoose.connect(DB_ADDRESS);
-app.use(hamlet());
 
 app.use(requestLogger);
 app.use(cors);
