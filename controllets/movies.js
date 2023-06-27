@@ -3,7 +3,7 @@ const NotFoundError = require('../errors/error-notFound');
 const ForbiddenError = require('../errors/error-forbidden');
 
 module.exports.getFilms = (req, res, next) => {
-  Movie.find({ })
+  Movie.find({ owner: req.user._id })
     .then((movies) => {
       res
         .status(200)

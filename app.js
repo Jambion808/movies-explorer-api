@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const routes = require('./routes/index');
-const { createUser, login } = require('./controllets/users');
+const { createUser, login, logout } = require('./controllets/users');
 const serverError = require('./errors/error-server');
 const auth = require('./middlewares/auth');
 const { singUpValidation, singInValidation } = require('./middlewares/validators');
@@ -22,6 +22,7 @@ app.use(cors);
 
 app.post('/signin', singInValidation, login);
 app.post('/signup', singUpValidation, createUser);
+app.post('/signout', logout);
 app.use(auth);
 app.use('/', routes);
 app.use(errorLogger);

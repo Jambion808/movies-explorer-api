@@ -58,11 +58,23 @@ module.exports.login = (req, res, next) => {
           const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', {
             expiresIn: '7d',
           });
-          res.status(200).send({ token });
+          res.cookie('jwt', token, {
+            httpOnly: true,
+            sameSite: true,
+          });
+          res.status(200).send({ message: 'Токен получен', token });
         })
         .catch((err) => next(err));
     })
     .catch((err) => next(err));
+};
+
+module.exports.logout = (req, res) => {
+  res.clearCookie('jwt', {
+    httpOnly: true,
+    sameSite: true,
+  })
+    .send({ message: 'Выход произведен' });
 };
 
 module.exports.updateUserData = (req, res, next) => {
