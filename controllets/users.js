@@ -8,20 +8,18 @@ const UnAuthError = require('../errors/error-auth');
 
 module.exports.createUser = (req, res, next) => {
   const { name, email, password } = req.body;
-  bcrypt.hash(password, 10)
-    .then((hash) => {
-      User.create({
-        name,
-        email,
-        password: hash,
-      })
-        .then((user) => res.status(201)
-          .send({
-            name: user.name,
-            email: user.email,
-          }))
-        .catch((err) => (next(err)));
-    });
+  bcrypt.hash(password, 10).then((hash) => {
+    User.create({
+      name,
+      email,
+      password: hash,
+    })
+      .then((user) => res.status(201).send({
+        name: user.name,
+        email: user.email,
+      }))
+      .catch((err) => next(err));
+  });
 };
 
 module.exports.getUserData = (req, res, next) => {
@@ -30,12 +28,11 @@ module.exports.getUserData = (req, res, next) => {
       throw new NotfoundError('Пользователь не найден');
     })
     .then((user) => {
-      res
-        .status(200)
-        .send({
-          email: user.email,
-          name: user.name,
-        });
+      res.status(200).send({
+        email: user.email,
+        name: user.name,
+        id: req.user._id,
+      });
     })
     .catch((err) => next(err));
 };
@@ -55,9 +52,13 @@ module.exports.login = (req, res, next) => {
           if (!matched) {
             throw new UnAuthError('Неверный логин или пароль');
           }
-          const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', {
-            expiresIn: '7d',
-          });
+          const token = jwt.sign(
+            { _id: user._id },
+            NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+            {
+              expiresIn: '7d',
+            },
+          );
           res.cookie('jwt', token, {
             httpOnly: true,
             sameSite: true,
@@ -70,10 +71,11 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.logout = (req, res) => {
-  res.clearCookie('jwt', {
-    httpOnly: true,
-    sameSite: true,
-  })
+  res
+    .clearCookie('jwt', {
+      httpOnly: true,
+      sameSite: true,
+    })
     .send({ message: 'Выход произведен' });
 };
 
@@ -88,11 +90,10 @@ module.exports.updateUserData = (req, res, next) => {
       throw new NotfoundError('Пользователь не найден');
     })
     .then((user) => {
-      res.status(201)
-        .send({
-          email: user.email,
-          name: user.name,
-        });
+      res.status(201).send({
+        email: user.email,
+        name: user.name,
+      });
     })
     .catch((err) => next(err));
 };
